@@ -267,3 +267,22 @@ body.dark {
     transform: perspective(400px) rotateX(0deg) rotateY(0deg) scale(1);
   }
 }
+
+/* Ensure header and footnote are stacked together */
+.header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align left */
+}
+
+/* Spacer to create a gap before the rest of the content */
+.spacer {
+  height: 10px; /* Adjust space as needed */
+}
+
+/* Style the buttons container */
+.buttons {
+  display: flex;
+  gap: 10px; /* Space between links */
+}
+

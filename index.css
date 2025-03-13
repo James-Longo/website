@@ -1,8 +1,9 @@
+/* ARTICLE & Typography */
 article {
   margin: 0 auto;
-  max-width: 800px;
-  padding: 40vh 0;
-
+  max-width: 800px; /* Keep constant */
+  /* Use clamp to allow the vertical padding to adjust responsively */
+  padding: clamp(35vh, 40vh, 45vh) 0;
   color: var(--dark);
   isolation: isolate;
 }
@@ -11,7 +12,23 @@ article a {
   color: var(--dark);
 }
 
+/* Responsive typography for text elements */
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: bold;
+}
 
+p,
+.text-link,
+.footnote-text {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+}
+
+pre {
+  font-size: clamp(0.8rem, 1.5vw, 1rem);
+}
+
+/* BODY & Background (unchanged) */
 body {
   --day: #fffdfa;
   --evening: #fccc83;
@@ -19,7 +36,6 @@ body {
   --night: #0f131c;
   --dawn: #16132b;
   --morning: #9fb3bf;
-
 
   --light: var(--day);
   --dark: var(--night);
@@ -57,45 +73,21 @@ body.dark {
 }
 
 @keyframes sunrise {
-  0% {
-    background-color: var(--night);
-  }
-
-  10% {
-    background-color: var(--dawn);
-  }
-
-  35% {
-    background-color: var(--morning);
-  }
-
-  100% {
-    background-color: var(--day);
-  }
+  0% { background-color: var(--night); }
+  10% { background-color: var(--dawn); }
+  35% { background-color: var(--morning); }
+  100% { background-color: var(--day); }
 }
 
 @keyframes sunset {
-  0% {
-    background-color: var(--day);
-  }
-
-  30% {
-    background-color: var(--evening);
-  }
-
-  60% {
-    background-color: var(--dusk);
-  }
-
-  90% {
-    background-color: var(--dawn);
-  }
-
-  100% {
-    background-color: var(--night);
-  }
+  0% { background-color: var(--day); }
+  30% { background-color: var(--evening); }
+  60% { background-color: var(--dusk); }
+  90% { background-color: var(--dawn); }
+  100% { background-color: var(--night); }
 }
 
+/* Background Elements */
 #dappled-light {
   pointer-events: none;
   position: fixed;
@@ -109,7 +101,7 @@ body.dark {
   width: 100%;
 }
 
-#progressive-blur>div {
+#progressive-blur > div {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -118,25 +110,25 @@ body.dark {
   mask-image: linear-gradient(252deg, transparent, transparent var(--stop1), black var(--stop2), black);
 }
 
-#progressive-blur>div:nth-child(1) {
+#progressive-blur > div:nth-child(1) {
   --blur-amount: 6px;
   --stop1: 0%;
   --stop2: 0%;
 }
 
-#progressive-blur>div:nth-child(2) {
+#progressive-blur > div:nth-child(2) {
   --blur-amount: 12px;
   --stop1: 40%;
   --stop2: 80%;
 }
 
-#progressive-blur>div:nth-child(3) {
+#progressive-blur > div:nth-child(3) {
   --blur-amount: 48px;
   --stop1: 40%;
   --stop2: 70%;
 }
 
-#progressive-blur>div:nth-child(4) {
+#progressive-blur > div:nth-child(4) {
   --blur-amount: 96px;
   --stop1: 70%;
   --stop2: 80%;
@@ -210,7 +202,7 @@ body.dark {
   background-color: var(--shadow);
 }
 
-#blinds>.shutters {
+#blinds > .shutters {
   display: flex;
   flex-direction: column;
   align-items: end;
@@ -218,11 +210,11 @@ body.dark {
   transition: gap 1.0s var(--timing-fn);
 }
 
-.dark #blinds>.shutters {
+.dark #blinds > .shutters {
   gap: 20px;
 }
 
-#blinds>.vertical {
+#blinds > .vertical {
   top: 0;
   position: absolute;
   height: 100%;
@@ -231,7 +223,7 @@ body.dark {
   justify-content: space-around;
 }
 
-.vertical>.bar {
+.vertical > .bar {
   width: 5;
   height: 100%;
 }
@@ -250,39 +242,34 @@ body.dark {
   0% {
     transform: perspective(400px) rotateX(0deg) rotateY(0deg) scale(1);
   }
-
   25% {
     transform: perspective(400px) rotateX(1deg) rotateY(2deg) scale(1.02);
   }
-
   50% {
     transform: perspective(400px) rotateX(-4deg) rotateY(-2deg) scale(0.97);
   }
-
   75% {
     transform: perspective(400px) rotateX(1deg) rotateY(-1deg) scale(1.04);
   }
-
   100% {
     transform: perspective(400px) rotateX(0deg) rotateY(0deg) scale(1);
   }
 }
 
-/* Ensure header and footnote are stacked together */
+/* Header & Footnote Layout */
 .header-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Align left */
+  align-items: flex-start;
 }
 
-/* Spacer to create a gap before the rest of the content */
+/* Spacer for additional gap */
 .spacer {
-  height: 10px; /* Adjust space as needed */
+  height: 10px;
 }
 
-/* Style the buttons container */
+/* Buttons Container */
 .buttons {
   display: flex;
-  gap: 10px; /* Space between links */
+  gap: 10px;
 }
-

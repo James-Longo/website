@@ -1,28 +1,29 @@
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <title>Home</title>
   <link rel="stylesheet" href="./index.css">
-</head>
 
+  <!-- Google Calendar Appointment Scheduling (loader + css) -->
+  <link href="https://calendar.google.com/calendar/scheduling-button-script.css" rel="stylesheet">
+  <script src="https://calendar.google.com/calendar/scheduling-button-script.js" async></script>
+</head>
 <body>
   <div id="dappled-light">
-
     <div id="glow"></div>
     <div id="glow-bounce"></div>
     <div class="perspective">
       <div id="leaves">
-        <svg style="width: 0; height: 0; position: absolute;">
+        <svg style="width:0;height:0;position:absolute;">
           <defs>
             <filter id="wind" x="-20%" y="-20%" width="140%" height="140%">
               <feTurbulence type="fractalNoise" numOctaves="2" seed="1">
                 <animate attributeName="baseFrequency" dur="16s" keyTimes="0;0.33;0.66;1"
-                  values="0.005 0.003;0.01 0.009;0.008 0.004;0.005 0.003" repeatCount="indefinite" />
+                         values="0.005 0.003;0.01 0.009;0.008 0.004;0.005 0.003" repeatCount="indefinite" />
               </feTurbulence>
               <feDisplacementMap in="SourceGraphic">
-                <animate attributeName="scale" dur="20s" keyTimes="0;0.25;0.5;0.75;1" values="45;55;75;55;45"
-                  repeatCount="indefinite" />
+                <animate attributeName="scale" dur="20s" keyTimes="0;0.25;0.5;0.75;1"
+                         values="45;55;75;55;45" repeatCount="indefinite" />
               </feDisplacementMap>
             </filter>
           </defs>
@@ -30,28 +31,13 @@
       </div>
       <div id="blinds">
         <div class="shutters">
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
-          <div class="shutter"></div>
+          <div class="shutter"></div><div class="shutter"></div><div class="shutter"></div>
+          <div class="shutter"></div><div class="shutter"></div><div class="shutter"></div>
+          <div class="shutter"></div><div class="shutter"></div><div class="shutter"></div>
+          <div class="shutter"></div><div class="shutter"></div><div class="shutter"></div>
+          <div class="shutter"></div><div class="shutter"></div><div class="shutter"></div>
+          <div class="shutter"></div><div class="shutter"></div><div class="shutter"></div>
+          <div class="shutter"></div><div class="shutter"></div><div class="shutter"></div>
           <div class="shutter"></div>
         </div>
         <div class="vertical">
@@ -61,34 +47,44 @@
       </div>
     </div>
     <div id="progressive-blur">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
+      <div></div><div></div><div></div><div></div>
     </div>
   </div>
 
-<article>
-  <div class="header-container">
-    <div>
-      <h1>James Longo</h1>
-      <p class="footnote-text">i don't actually have my PhD yet.</p>
+  <article>
+    <div class="header-container">
+      <div>
+        <h1>James Longo</h1>
+        <p class="footnote-text">i don't actually have my PhD yet.</p>
+      </div>
     </div>
-  </div>
 
-  <div class="buttons">
-    <a href="https://forms.gle/axvE9gp8fMmHE4358" class="text-link" target="_blank" rel="noopener noreferrer">bird with me!</a>
-    <a href="mailto:James.Longo.birds@gmail.com" class="text-link">email</a>
-    <a href="https://docs.google.com/document/d/1DvZsM90I6icctp3fJQMmay7vi7G9nnSYNbKOF9v3hko/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="text-link">CV</a>
-  </div>
-  <pre>:)</pre>
-</article>
+    <div class="buttons">
+      <!-- Google Calendar Appointment Scheduling (placement/init) -->
+      <script>
+        (function() {
+          var target = document.currentScript;
+          window.addEventListener('load', function() {
+            if (!window.calendar || !calendar.schedulingButton) return;
+            calendar.schedulingButton.load({
+              url: 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ2UhvSwSb8Ist1kqkEnt7fyVCrZISRuHzuFKobSGhMZDM8XMENeraZ0u0ttrssHlvCDHbPVauwY?gv=true',
+              color: '#039BE5',
+              label: 'bird with me!',
+              target
+            });
+          });
+        })();
+      </script>
 
+      <a href="mailto:James.Longo.birds@gmail.com" class="text-link">email</a>
+      <a href="https://docs.google.com/document/d/1DvZsM90I6icctp3fJQMmay7vi7G9nnSYNbKOF9v3hko/edit?usp=sharing"
+         target="_blank" rel="noopener noreferrer" class="text-link">CV</a>
+    </div>
 
+    <pre>:)</pre>
+  </article>
 
-
+  <!-- Your site script should be inside body -->
+  <script src="./index.js"></script>
 </body>
-
-<script src="./index.js"></script>
-
 </html>

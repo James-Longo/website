@@ -1,32 +1,27 @@
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Home</title>
-  <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" href="./index.css" />
 
   <!-- Google Calendar Appointment Scheduling (loader + css) -->
-  <link href="https://calendar.google.com/calendar/scheduling-button-script.css" rel="stylesheet">
+  <link href="https://calendar.google.com/calendar/scheduling-button-script.css" rel="stylesheet" />
   <script src="https://calendar.google.com/calendar/scheduling-button-script.js" async></script>
 
-  <!-- Minimal style to match Google's blue button for LinkedIn -->
+  <!-- Stack buttons vertically and keep LinkedIn styled identically -->
   <style>
-    .gc-like-button {
-      display: block; /* force each button onto its own line */
-      margin-top: 10px;
-      padding: 8px 16px;
-      border-radius: 4px;
-      background-color: #039BE5;
-      color: #fff;
-      font-weight: 500;
-      text-decoration: none;
-      line-height: 1;
-      transition: background-color .2s ease, transform .02s ease;
-      border: none;
-      cursor: pointer;
-      vertical-align: middle;
+    /* Stack the injected Google button and the LinkedIn button on separate lines */
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px; /* spacing between buttons */
     }
-    .gc-like-button:hover { background-color: #0277BD; }
-    .gc-like-button:active { transform: translateY(1px); }
+    /* Ensure the anchor uses the exact same styling as Google's button */
+    a.calendar-scheduling-button {
+      text-decoration: none; /* in case your base styles underline links */
+    }
   </style>
 </head>
 
@@ -75,6 +70,7 @@
           <div class="shutter"></div>
           <div class="shutter"></div>
           <div class="shutter"></div>
+          <div class="shutter"></div>
         </div>
         <div class="vertical">
           <div class="bar"></div>
@@ -101,9 +97,9 @@
     <div class="buttons">
       <!-- Google Calendar Appointment Scheduling (placement/init) -->
       <script>
-        (function() {
+        (function () {
           var target = document.currentScript;
-          window.addEventListener('load', function() {
+          window.addEventListener('load', function () {
             if (!window.calendar || !calendar.schedulingButton) return;
             calendar.schedulingButton.load({
               url: 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ2UhvSwSb8Ist1kqkEnt7fyVCrZISRuHzuFKobSGhMZDM8XMENeraZ0u0ttrssHlvCDHbPVauwY?gv=true',
@@ -115,13 +111,13 @@
         })();
       </script>
 
-      <!-- LinkedIn button on its own line -->
-      <a href="https://www.linkedin.com/in/james-longo/"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="gc-like-button">
-        LinkedIn
-      </a>
+      <!-- LinkedIn button, styled with the exact same class as Google's button -->
+      <a
+        href="https://www.linkedin.com/in/YOUR-USERNAME"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="calendar-scheduling-button"
+      >LinkedIn</a>
     </div>
 
     <pre>:)</pre>

@@ -9,18 +9,43 @@
   <link href="https://calendar.google.com/calendar/scheduling-button-script.css" rel="stylesheet" />
   <script src="https://calendar.google.com/calendar/scheduling-button-script.js" async></script>
 
-  <!-- Stack buttons vertically and keep LinkedIn styled identically -->
+  <!-- Stack buttons vertically + LinkedIn-styled button -->
   <style>
-    /* Stack the injected Google button and the LinkedIn button on separate lines */
     .buttons {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       gap: 10px; /* spacing between buttons */
     }
-    /* Ensure the anchor uses the exact same styling as Google's button */
-    a.calendar-scheduling-button {
-      text-decoration: none; /* in case your base styles underline links */
+    /* LinkedIn-styled button (uses LinkedIn Blue #0A66C2, darker hover) */
+    .btn-linkedin {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 23px;
+      background-color: #0A66C2;
+      color: #FFFFFF;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.02s ease;
+    }
+    .btn-linkedin:hover { background-color: #004182; }
+    .btn-linkedin:active { background-color: #003362; transform: translateY(1px); }
+    .btn-linkedin:focus { outline: none; box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.35); }
+    .btn-linkedin .li-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+    }
+    .btn-linkedin .li-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
   </style>
 </head>
@@ -104,20 +129,29 @@
             calendar.schedulingButton.load({
               url: 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ2UhvSwSb8Ist1kqkEnt7fyVCrZISRuHzuFKobSGhMZDM8XMENeraZ0u0ttrssHlvCDHbPVauwY?gv=true',
               color: '#039BE5',
-              label: 'bird with me!',
+              label: '📅 bird with me!',
               target
             });
           });
         })();
       </script>
 
-      <!-- LinkedIn button, styled with the exact same class as Google's button -->
+      <!-- LinkedIn button styled to match LinkedIn's own look -->
       <a
-        href="https://www.linkedin.com/in/YOUR-USERNAME"
+        href="https://www.linkedin.com/in/james-longo/"
         target="_blank"
         rel="noopener noreferrer"
-        class="calendar-scheduling-button"
-      >LinkedIn</a>
+        class="btn-linkedin"
+        aria-label="Open LinkedIn profile"
+      >
+        <span class="li-icon" aria-hidden="true">
+          <!-- LinkedIn 'in' mark as white SVG -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" focusable="false">
+            <path fill="#FFFFFF" d="M20.451 20.451h-3.555v-5.57c0-1.329-.027-3.04-1.853-3.04-1.854 0-2.137 1.448-2.137 2.944v5.666H9.351V9h3.414v1.561h.049c.476-.9 1.637-1.85 3.37-1.85 3.604 0 4.27 2.373 4.27 5.458v6.282zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zM7.115 20.451H3.558V9h3.557v11.451zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.226.792 24 1.771 24h20.451C23.2 24 24 23.226 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+        </span>
+        LinkedIn
+      </a>
     </div>
 
     <pre>:)</pre>

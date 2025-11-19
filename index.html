@@ -5,9 +5,7 @@
   <title>Home</title>
   <link rel="stylesheet" href="./index.css" />
 
-  <!-- Google Calendar Appointment Scheduling (loader + css) -->
-  <link href="https://calendar.google.com/calendar/scheduling-button-script.css" rel="stylesheet" />
-  <script src="https://calendar.google.com/calendar/scheduling-button-script.js" async></script>
+
 
   <!-- Stack buttons vertically + LinkedIn-styled button -->
   <style>
@@ -47,6 +45,28 @@
       height: 100%;
       display: block;
     }
+    /* Cal.com button */
+    .btn-cal {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 23px;
+      background-color: #039BE5;
+      color: #FFFFFF;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.02s ease;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    .btn-cal:hover { background-color: #0277bd; }
+    .btn-cal:active { background-color: #01579b; transform: translateY(1px); }
+    .btn-cal:focus { outline: none; box-shadow: 0 0 0 3px rgba(3, 155, 229, 0.35); }
   </style>
 </head>
 
@@ -120,21 +140,22 @@
     </div>
 
     <div class="buttons">
-      <!-- Google Calendar Appointment Scheduling (placement/init) -->
-      <script>
-        (function () {
-          var target = document.currentScript;
-          window.addEventListener('load', function () {
-            if (!window.calendar || !calendar.schedulingButton) return;
-            calendar.schedulingButton.load({
-              url: 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ2UhvSwSb8Ist1kqkEnt7fyVCrZISRuHzuFKobSGhMZDM8XMENeraZ0u0ttrssHlvCDHbPVauwY?gv=true',
-              color: '#039BE5',
-              label: '📅 bird with me!',
-              target
-            });
-          });
-        })();
+      <!-- Cal element-click embed code begins -->
+      <button
+        data-cal-link="james-longo/birding"
+        data-cal-namespace="birding"
+        data-cal-config='{"layout":"month_view"}'
+        class="btn-cal"
+      >
+        📅 bird with me!
+      </button>
+      <script type="text/javascript">
+        (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+        Cal("init", "birding", {origin:"https://app.cal.com"});
+
+        Cal.ns.birding("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
       </script>
+      <!-- Cal element-click embed code ends -->
 
       <!-- LinkedIn button styled to match LinkedIn's own look -->
       <a

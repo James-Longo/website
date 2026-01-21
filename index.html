@@ -1,8 +1,11 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>Home</title>
+  <title>James Longo | Personal Website</title>
+  <meta name="description"
+    content="Personal website of James Longo, featuring a Track and Field Dashboard and birding schedule." />
   <link rel="stylesheet" href="./index.css" />
 
 
@@ -13,8 +16,10 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 10px; /* spacing between buttons */
+      gap: 10px;
+      /* spacing between buttons */
     }
+
     /* LinkedIn-styled button (uses LinkedIn Blue #0A66C2, darker hover) */
     .btn-linkedin {
       display: inline-flex;
@@ -32,19 +37,33 @@
       user-select: none;
       transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.02s ease;
     }
-    .btn-linkedin:hover { background-color: #004182; }
-    .btn-linkedin:active { background-color: #003362; transform: translateY(1px); }
-    .btn-linkedin:focus { outline: none; box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.35); }
+
+    .btn-linkedin:hover {
+      background-color: #004182;
+    }
+
+    .btn-linkedin:active {
+      background-color: #003362;
+      transform: translateY(1px);
+    }
+
+    .btn-linkedin:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.35);
+    }
+
     .btn-linkedin .li-icon {
       width: 18px;
       height: 18px;
       display: inline-block;
     }
+
     .btn-linkedin .li-icon svg {
       width: 100%;
       height: 100%;
       display: block;
     }
+
     /* Cal.com button */
     .btn-cal {
       display: inline-flex;
@@ -64,9 +83,54 @@
       font-family: inherit;
       font-size: 1rem;
     }
-    .btn-cal:hover { background-color: #0277bd; }
-    .btn-cal:active { background-color: #01579b; transform: translateY(1px); }
-    .btn-cal:focus { outline: none; box-shadow: 0 0 0 3px rgba(3, 155, 229, 0.35); }
+
+    .btn-cal:hover {
+      background-color: #0277bd;
+    }
+
+    .btn-cal:active {
+      background-color: #01579b;
+      transform: translateY(1px);
+    }
+
+    .btn-cal:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(3, 155, 229, 0.35);
+    }
+
+    /* Track and Field Dashboard button */
+    .btn-track {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 23px;
+      background-color: maroon;
+      color: #FFFFFF;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.02s ease;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .btn-track:hover {
+      background-color: #600000;
+    }
+
+    .btn-track:active {
+      background-color: #400000;
+      transform: translateY(1px);
+    }
+
+    .btn-track:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.35);
+    }
   </style>
 </head>
 
@@ -140,35 +204,30 @@
     </div>
 
     <div class="buttons">
+      <a href="https://gsaxctf.com/" target="_blank" rel="noopener noreferrer" class="btn-track">
+        🏃‍♂️ track and field dashboard
+      </a>
       <!-- Cal element-click embed code begins -->
-      <button
-        data-cal-link="james-longo/birding"
-        data-cal-namespace="birding"
-        data-cal-config='{"layout":"month_view"}'
-        class="btn-cal"
-      >
+      <button data-cal-link="james-longo/birding" data-cal-namespace="birding" data-cal-config='{"layout":"month_view"}'
+        class="btn-cal">
         📅 bird with me!
       </button>
       <script type="text/javascript">
-        (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
-        Cal("init", "birding", {origin:"https://app.cal.com"});
+        (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+        Cal("init", "birding", { origin: "https://app.cal.com" });
 
-        Cal.ns.birding("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
+        Cal.ns.birding("ui", { "hideEventTypeDetails": false, "layout": "month_view" });
       </script>
       <!-- Cal element-click embed code ends -->
 
       <!-- LinkedIn button styled to match LinkedIn's own look -->
-      <a
-        href="https://www.linkedin.com/in/james-longo/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn-linkedin"
-        aria-label="Open LinkedIn profile"
-      >
+      <a href="https://www.linkedin.com/in/james-longo/" target="_blank" rel="noopener noreferrer" class="btn-linkedin"
+        aria-label="Open LinkedIn profile">
         <span class="li-icon" aria-hidden="true">
           <!-- LinkedIn 'in' mark as white SVG -->
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" focusable="false">
-            <path fill="#FFFFFF" d="M20.451 20.451h-3.555v-5.57c0-1.329-.027-3.04-1.853-3.04-1.854 0-2.137 1.448-2.137 2.944v5.666H9.351V9h3.414v1.561h.049c.476-.9 1.637-1.85 3.37-1.85 3.604 0 4.27 2.373 4.27 5.458v6.282zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zM7.115 20.451H3.558V9h3.557v11.451zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.226.792 24 1.771 24h20.451C23.2 24 24 23.226 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            <path fill="#FFFFFF"
+              d="M20.451 20.451h-3.555v-5.57c0-1.329-.027-3.04-1.853-3.04-1.854 0-2.137 1.448-2.137 2.944v5.666H9.351V9h3.414v1.561h.049c.476-.9 1.637-1.85 3.37-1.85 3.604 0 4.27 2.373 4.27 5.458v6.282zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zM7.115 20.451H3.558V9h3.557v11.451zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.226.792 24 1.771 24h20.451C23.2 24 24 23.226 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
           </svg>
         </span>
         LinkedIn
@@ -180,4 +239,5 @@
 
   <script src="./index.js"></script>
 </body>
+
 </html>

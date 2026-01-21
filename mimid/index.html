@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mimid</title>
+    <meta name="description"
+        content="Master bird sounds with dynamic flashcards powered by the Cornell Guide to Bird Sounds.">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div id="loading" class="loading-overlay">
+        <div class="audio-controls">
+            <div class="visualizer">
+                <div class="bar" style="animation-delay: 0.0s"></div>
+                <div class="bar" style="animation-delay: 0.1s"></div>
+                <div class="bar" style="animation-delay: 0.2s"></div>
+                <div class="bar" style="animation-delay: 0.3s"></div>
+                <div class="bar" style="animation-delay: 0.4s"></div>
+                <div class="bar" style="animation-delay: 0.5s"></div>
+            </div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <div id="app">
+        <header>
+            <h1>mimid</h1>
+        </header>
+
+        <aside class="settings-panel">
+            <div class="settings-section">
+                <h3>Families</h3>
+                <div style="position: relative; margin-bottom: 0.5rem;">
+                    <select id="familySelect" class="search-input" style="cursor: pointer;">
+                        <option value="">Select a Family...</option>
+                    </select>
+                </div>
+                <div class="filter-list" id="selectedFamiliesList">
+                    <!-- Selected family chips will appear here -->
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Custom Group</h3>
+                <div class="filter-list" id="selectedSpeciesList">
+                    <!-- Selected individual species chips -->
+                </div>
+                <div style="position: relative;">
+                    <input type="text" id="speciesSearch" class="search-input" placeholder="Search to add species..."
+                        autocomplete="off">
+                    <div id="speciesResults" class="dropdown-results hidden"></div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Vocalizations</h3>
+                <div class="filter-list" id="typeFilters">
+                    <!-- Dynamic chips -->
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Region</h3>
+                <div class="filter-list" id="regionFilters">
+                    <!-- Dynamic region chips -->
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="startScreen" style="text-align: center;">
+                <p style="margin-bottom: 2rem; font-size: 1.2rem; max-width: 500px; line-height: 1.6;">
+                    Select your <strong>study species</strong> and <strong>vocalization types</strong> from the sidebar,
+                    then click Start to begin.
+                </p>
+                <button class="primary" id="startBtn" style="font-size: 1.2rem; padding: 1rem 3rem;">Start
+                    Session</button>
+            </div>
+
+            <div class="card-container hidden-card" id="cardContainer">
+                <div class="flashcard">
+                    <!-- Front: Sound Only -->
+                    <div class="card-face front">
+                        <div class="audio-controls">
+                            <button class="play-button" id="playButton">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </button>
+                            <button class="play-button" id="pauseButton" style="display: none;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                </svg>
+                            </button>
+                            <p id="promptText">Playing vocalization...</p>
+                            <div class="visualizer" id="visualizer" style="display: none;">
+                                <div class="bar" style="animation-delay: 0.0s"></div>
+                                <div class="bar" style="animation-delay: 0.2s"></div>
+                                <div class="bar" style="animation-delay: 0.4s"></div>
+                                <div class="bar" style="animation-delay: 0.1s"></div>
+                                <div class="bar" style="animation-delay: 0.3s"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Back: Species Info -->
+                    <div class="card-face back">
+                        <div class="species-image-container">
+                            <img id="speciesImage" src="" alt="">
+                            <p id="imageAttribution" class="attribution"></p>
+                        </div>
+                        <h2 class="species-name" id="speciesName">Common Loon</h2>
+                        <p class="species-family" id="speciesFamily"
+                            style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;"></p>
+                        <p class="vocalization-type" id="vocalType">Song</p>
+                        <span class="location-tag" id="locationTag">US-AK</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls hidden-card" id="mainControls">
+                <button class="secondary" id="revealBtn">Reveal Answer</button>
+                <div id="ratingButtons" class="rating-group hidden-card">
+                    <button class="rating-btn again" data-grade="1">Incorrect</button>
+                    <button class="rating-btn hard" data-grade="2">Correct (Hard)</button>
+                    <button class="rating-btn easy" data-grade="4">Correct (Easy)</button>
+                </div>
+                <button class="secondary" id="resetBtn"
+                    style="margin-top: 1rem; background: var(--danger); opacity: 0.8;">Reset Session</button>
+            </div>
+            <p id="statsText" style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;"></p>
+        </main>
+
+        <audio id="birdAudio" style="display:none;"></audio>
+    </div>
+
+    <script>
+        let currentPool = [];
+        let currentRecord = null;
+        let isFlipped = false;
+        let isSessionActive = false;
+        let selectedSpecies = new Set();
+        let selectedFamilies = new Set();
+        let selectedTypes = new Set();
+        let selectedRegions = new Set();
+        let debounceTimer;
+
+        // FSRS Parameters & Logic (Simplified V4)
+        const W = [0.4, 0.6, 2.4, 5.8, 4.93, 0.94, 0.86, 0.01, 1.49, 0.14, 0.94, 2.18, 0.05, 0.34, 1.26, 0.29, 2.61];
+
+        function getMetadata() {
+            return JSON.parse(localStorage.getItem('mimid_metadata') || '{}');
+        }
+
+        function saveMetadata(id, data) {
+            const meta = getMetadata();
+            meta[id] = data;
+            localStorage.setItem('mimid_metadata', JSON.stringify(meta));
+        }
+
+        const cardContainer = document.getElementById('cardContainer');
+        const playBtn = document.getElementById('playButton');
+        const revealBtn = document.getElementById('revealBtn');
+        const ratingButtons = document.getElementById('ratingButtons');
+        const birdAudio = document.getElementById('birdAudio');
+        const viz = document.getElementById('visualizer');
+        const promptText = document.getElementById('promptText');
+        const statsText = document.getElementById('statsText');
+        const startScreen = document.getElementById('startScreen');
+        const startBtn = document.getElementById('startBtn');
+        const mainControls = document.getElementById('mainControls');
+        const speciesResults = document.getElementById('speciesResults');
+        const selectedSpeciesList = document.getElementById('selectedSpeciesList');
+        const typeFilters = document.getElementById('typeFilters');
+        const speciesEl = document.getElementById('speciesName');
+        const speciesFamilyEl = document.getElementById('speciesFamily');
+        const vocalTypeEl = document.getElementById('vocalType');
+        const locationEl = document.getElementById('locationTag');
+        const speciesImageEl = document.getElementById('speciesImage');
+        const imageAttributionEl = document.getElementById('imageAttribution');
+        const loadingOverlay = document.getElementById('loading');
+        const speciesSearch = document.getElementById('speciesSearch');
+        const regionFilters = document.getElementById('regionFilters');
+        const familySelect = document.getElementById('familySelect');
+        const selectedFamiliesList = document.getElementById('selectedFamiliesList');
+
+        const speciesMetadataCache = new Map(); // Store fetched recordings per species
+
+        // Remove static COMMON_TYPES. We will populate dynamically.
+
+        async function fetchSpeciesData(species) {
+            if (speciesMetadataCache.has(species)) return speciesMetadataCache.get(species);
+
+            let q = `en:"${species}" q:A len:10-60`;
+            console.log("Fetching metadata for:", species);
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/search?query=${encodeURIComponent(q)}`);
+                const data = await response.json();
+                const recordings = data.recordings || [];
+                speciesMetadataCache.set(species, recordings);
+                return recordings;
+            } catch (e) {
+                console.error("Error fetching", species, e);
+                return [];
+            }
+        }
+
+        async function updateAvailableTypes() {
+            // Build complete species list from families + individual species
+            const allSpeciesToFetch = new Set(selectedSpecies);
+
+            if (selectedFamilies.size > 0) {
+                // Use cached family -> species mapping
+                selectedFamilies.forEach(family => {
+                    const speciesInFamily = familyToSpeciesList.get(family) || [];
+                    speciesInFamily.forEach(sp => allSpeciesToFetch.add(sp));
+                });
+            }
+
+            const speciesList = Array.from(allSpeciesToFetch);
+            if (speciesList.length === 0) {
+                typeFilters.innerHTML = '<div class="filter-chip" style="cursor:default; background:transparent;">Select families or species first</div>';
+                regionFilters.innerHTML = '<div class="filter-chip" style="cursor:default; background:transparent;">Select families or species first</div>';
+                return;
+            }
+
+            typeFilters.innerHTML = '<div style="color: var(--text-muted); font-style: italic; padding: 0.5rem;">Loading types...</div>';
+            regionFilters.innerHTML = '<div style="color: var(--text-muted); font-style: italic; padding: 0.5rem;">Loading regions...</div>';
+
+            const allRecordings = [];
+            const fetchList = [];
+
+            // 1. Instantly use data already in the client-side cache
+            speciesList.forEach(sp => {
+                if (speciesMetadataCache.has(sp)) {
+                    allRecordings.push(...speciesMetadataCache.get(sp));
+                } else {
+                    fetchList.push(sp);
+                }
+            });
+
+            // 2. Fetch remaining species all at once
+            if (fetchList.length > 0) {
+                typeFilters.innerHTML = `<div style="color: var(--text-muted); font-style: italic; padding: 0.5rem;">Loading types... (fetching ${fetchList.length} species)</div>`;
+                regionFilters.innerHTML = `<div style="color: var(--text-muted); font-style: italic; padding: 0.5rem;">Loading regions... (fetching ${fetchList.length} species)</div>`;
+
+                const promises = fetchList.map(sp => fetchSpeciesData(sp));
+                const results = await Promise.all(promises);
+                results.forEach(recs => allRecordings.push(...recs));
+            }
+
+            typeFilters.innerHTML = '';
+
+            if (allRecordings.length === 0) {
+                typeFilters.innerHTML = '<div class="filter-chip">No recordings found</div>';
+                return;
+            }
+
+            // Extract and count types (filtered by selected regions if any)
+            let recordingsForTypeCounts = allRecordings;
+            if (selectedRegions.size > 0) {
+                recordingsForTypeCounts = allRecordings.filter(rec => {
+                    const region = rec.cnt || "Unknown";
+                    return selectedRegions.has(region);
+                });
+            }
+
+            const typeCounts = new Map();
+            recordingsForTypeCounts.forEach(rec => {
+                const rawType = rec.type || "unknown";
+                const parts = rawType.split(',').map(t => t.trim().toLowerCase());
+                parts.forEach(t => {
+                    if (!t) return;
+                    const normalized = t.charAt(0).toUpperCase() + t.slice(1);
+                    typeCounts.set(normalized, (typeCounts.get(normalized) || 0) + 1);
+                });
+            });
+
+            // Sort by frequency
+            const sortedTypes = Array.from(typeCounts.entries())
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            typeFilters.innerHTML = ''; // Clear previous
+            sortedTypes.forEach(([type, count]) => {
+                const chip = document.createElement('div');
+                chip.className = 'filter-chip';
+                if (selectedTypes.has(type)) chip.classList.add('active');
+                chip.innerText = `${type} (${count})`;
+                chip.onclick = () => {
+                    toggleFilter(selectedTypes, type, chip);
+                    updateAvailableTypes(); // Refresh counts
+                    renderSelectedFamilies(); // Update family counts
+                };
+                typeFilters.appendChild(chip);
+            });
+
+            // Extract and count regions (filtered by selected types if any)
+            let recordingsForRegionCounts = allRecordings;
+            if (selectedTypes.size > 0) {
+                recordingsForRegionCounts = allRecordings.filter(rec => {
+                    const recType = (rec.type || "").toLowerCase();
+                    for (let t of selectedTypes) {
+                        if (recType.includes(t.toLowerCase())) return true;
+                    }
+                    return false;
+                });
+            }
+
+            const regionCounts = new Map();
+            recordingsForRegionCounts.forEach(rec => {
+                const region = rec.cnt || "Unknown";
+                regionCounts.set(region, (regionCounts.get(region) || 0) + 1);
+            });
+
+            // Sort by frequency and show top 10
+            const sortedRegions = Array.from(regionCounts.entries())
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            regionFilters.innerHTML = ''; // Clear previous
+            sortedRegions.forEach(([region, count]) => {
+                const chip = document.createElement('div');
+                chip.className = 'filter-chip';
+                if (selectedRegions.has(region)) chip.classList.add('active');
+                chip.innerText = `${region} (${count})`;
+                chip.onclick = () => {
+                    toggleFilter(selectedRegions, region, chip);
+                    updateAvailableTypes(); // Refresh counts
+                    renderSelectedFamilies(); // Update family counts
+                };
+                regionFilters.appendChild(chip);
+            });
+        }
+
+        function toggleFilter(set, value, el) {
+            if (set.has(value)) set.delete(value);
+            else set.add(value);
+            el.classList.toggle('active');
+        }
+
+        let familySpeciesCounts = new Map(); // Cache family -> species count
+        let familyToSpeciesList = new Map(); // Cache family -> species names
+
+        async function populateFamilyDropdown() {
+            try {
+                // Just get the list of families
+                const response = await fetch('http://localhost:5000/api/families');
+                const families = await response.json();
+
+                console.log(`Loaded ${families.length} families`);
+
+                families.sort().forEach((family) => {
+                    const opt = document.createElement('option');
+                    opt.value = family;
+                    opt.innerText = family;
+                    familySelect.appendChild(opt);
+                });
+            } catch (err) {
+                console.error("Failed to load families", err);
+            }
+        }
+
+        async function getFamilySpecies(family) {
+            // Return cached if available
+            if (familyToSpeciesList.has(family)) {
+                return familyToSpeciesList.get(family);
+            }
+
+            // Fetch species for this family using the backend endpoint
+            try {
+                const response = await fetch(`http://localhost:5000/api/species_by_family?family=${encodeURIComponent(family)}`);
+                const speciesData = await response.json();
+
+                // Extract just the English names
+                const speciesInFamily = speciesData.map(sp => sp.en);
+
+                // Cache it
+                familyToSpeciesList.set(family, speciesInFamily);
+                familySpeciesCounts.set(family, speciesInFamily.length);
+
+                console.log(`Loaded ${speciesInFamily.length} species for ${family}`);
+
+                return speciesInFamily;
+            } catch (err) {
+                console.error(`Failed to fetch species for ${family}`, err);
+                return [];
+            }
+        }
+
+        async function renderSelectedFamilies() {
+            selectedFamiliesList.innerHTML = '';
+
+            for (const fam of selectedFamilies) {
+                const chip = document.createElement('div');
+                chip.className = 'filter-chip active';
+
+                // Get all species in this family
+                const allSpeciesInFamily = await getFamilySpecies(fam);
+
+                // If filters are active, count only species with matching recordings
+                let filteredCount = allSpeciesInFamily.length;
+
+                if (selectedTypes.size > 0 || selectedRegions.size > 0) {
+                    // Count species that have recordings matching the filters
+                    let matchingSpeciesCount = 0;
+
+                    for (const species of allSpeciesInFamily) {
+                        // Check if this species has any recordings in cache
+                        if (speciesMetadataCache.has(species)) {
+                            const recordings = speciesMetadataCache.get(species);
+
+                            // Filter recordings by type and region
+                            const matchingRecordings = recordings.filter(rec => {
+                                let matchesType = true;
+                                let matchesRegion = true;
+
+                                if (selectedTypes.size > 0) {
+                                    const recType = (rec.type || "").toLowerCase();
+                                    matchesType = Array.from(selectedTypes).some(t =>
+                                        recType.includes(t.toLowerCase())
+                                    );
+                                }
+
+                                if (selectedRegions.size > 0) {
+                                    const region = rec.cnt || "Unknown";
+                                    matchesRegion = selectedRegions.has(region);
+                                }
+
+                                return matchesType && matchesRegion;
+                            });
+
+                            if (matchingRecordings.length > 0) {
+                                matchingSpeciesCount++;
+                            }
+                        }
+                    }
+
+                    filteredCount = matchingSpeciesCount;
+                }
+
+                chip.innerText = `${fam} (${filteredCount}) ×`;
+                chip.onclick = () => removeFamily(fam);
+                selectedFamiliesList.appendChild(chip);
+            }
+        }
+
+        async function selectFamily(fam) {
+            selectedFamilies.add(fam);
+            familySelect.value = '';
+            await renderSelectedFamilies();
+            updateAvailableTypes();
+        }
+
+        function removeFamily(fam) {
+            selectedFamilies.delete(fam);
+            renderSelectedFamilies();
+            updateAvailableTypes();
+        }
+
+        familySelect.addEventListener('change', async (e) => {
+            const fam = e.target.value;
+            if (fam) await selectFamily(fam);
+        });
+
+        function init() {
+            // Initialize filter placeholders
+            typeFilters.innerHTML = '<div class="filter-chip" style="cursor:default; background:transparent;">Select families or species first</div>';
+            regionFilters.innerHTML = '<div class="filter-chip" style="cursor:default; background:transparent;">Select families or species first</div>';
+
+            loadingOverlay.classList.add('hidden');
+
+            // Populate family dropdown
+            populateFamilyDropdown();
+        }
+
+        async function addSpeciesFromList(speciesList, sourceName) {
+            loadingOverlay.classList.remove('hidden');
+            try {
+                let count = 0;
+                for (const s of speciesList) {
+                    selectedSpecies.add(s.en);
+                    count++;
+                }
+
+                renderSelectedSpecies();
+                updateAvailableTypes();
+
+                // console.log(`Added ${count} species from ${sourceName}.`);
+
+            } catch (err) {
+                console.error("Fetch failed", err);
+                alert("Failed to load species.");
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        // Search Species via Local Backend Suggestions
+        speciesSearch.addEventListener('input', (e) => {
+            const term = e.target.value;
+            clearTimeout(debounceTimer);
+            if (term.length < 2) {
+                speciesResults.classList.add('hidden');
+                return;
+            }
+
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/suggest?q=${encodeURIComponent(term)}`);
+                    const data = await response.json();
+
+                    const suggestions = data.map(s => s.en);
+                    renderSuggestions(suggestions);
+
+                } catch (err) {
+                    console.error("Suggestion failed", err);
+                }
+            }, 200);
+        });
+
+        function renderSuggestions(list) {
+            speciesResults.innerHTML = '';
+            if (list.length === 0) {
+                speciesResults.classList.add('hidden');
+                return;
+            }
+            list.forEach(sp => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.innerText = sp;
+                item.onclick = () => selectSpecies(sp);
+                speciesResults.appendChild(item);
+            });
+            speciesResults.classList.remove('hidden');
+        }
+
+        function selectSpecies(sp) {
+            selectedSpecies.add(sp);
+            speciesSearch.value = '';
+            speciesResults.classList.add('hidden');
+            renderSelectedSpecies();
+            updateAvailableTypes();
+        }
+
+        function removeSpecies(sp) {
+            selectedSpecies.delete(sp);
+            renderSelectedSpecies();
+            updateAvailableTypes();
+        }
+
+        function renderSelectedSpecies() {
+            selectedSpeciesList.innerHTML = '';
+            selectedSpecies.forEach(sp => {
+                const chip = document.createElement('div');
+                chip.className = 'filter-chip active';
+                chip.innerText = sp + ' ×';
+                chip.onclick = () => removeSpecies(sp);
+                selectedSpeciesList.appendChild(chip);
+            });
+        }
+
+        // Start Session: Fetch real data based on selection
+        startBtn.addEventListener('click', async () => {
+            if (selectedSpecies.size === 0 && selectedFamilies.size === 0) {
+                alert("Please select at least one family or individual species!");
+                return;
+            }
+
+            loadingOverlay.classList.remove('hidden');
+
+            // Build complete species list from families + individual species
+            const allSpeciesToFetch = new Set(selectedSpecies);
+
+            if (selectedFamilies.size > 0) {
+                // Use cached family -> species mapping
+                for (const family of selectedFamilies) {
+                    const speciesInFamily = await getFamilySpecies(family);
+                    speciesInFamily.forEach(sp => allSpeciesToFetch.add(sp));
+                }
+            }
+
+            // Collect data from cache (should be already populated/fetched)
+            let combined = [];
+            const speciesList = Array.from(allSpeciesToFetch);
+
+            console.log(`Starting session with ${speciesList.length} species`);
+
+            // Ensure all selected species are fetched (just in case)
+            for (const sp of speciesList) {
+                const recs = await fetchSpeciesData(sp);
+                combined.push(...recs);
+            }
+
+            console.log(`Fetched ${combined.length} total recordings`);
+
+            // Client-side Type Filtering
+            if (selectedTypes.size > 0) {
+                const beforeFilter = combined.length;
+                combined = combined.filter(rec => {
+                    const recType = (rec.type || "").toLowerCase();
+                    // Check if ANY selected type matches the record type
+                    for (let t of selectedTypes) {
+                        if (recType.includes(t.toLowerCase())) return true;
+                    }
+                    return false;
+                });
+                console.log(`Type filter: ${beforeFilter} -> ${combined.length} recordings (filtered by ${Array.from(selectedTypes).join(', ')})`);
+            }
+
+            // Client-side Region Filtering
+            if (selectedRegions.size > 0) {
+                const beforeFilter = combined.length;
+                combined = combined.filter(rec => {
+                    const recRegion = rec.cnt || "Unknown";
+                    return selectedRegions.has(recRegion);
+                });
+                console.log(`Region filter: ${beforeFilter} -> ${combined.length} recordings (filtered by ${Array.from(selectedRegions).join(', ')})`);
+            }
+
+            if (combined.length === 0) {
+                console.error("No recordings after filtering!");
+                console.log("Selected types:", Array.from(selectedTypes));
+                console.log("Selected regions:", Array.from(selectedRegions));
+                alert("No recordings found for these species/types/regions.");
+                loadingOverlay.classList.add('hidden');
+                return;
+            }
+
+            currentPool = combined;
+            isSessionActive = true;
+            startScreen.style.display = 'none';
+            cardContainer.classList.remove('hidden-card');
+            mainControls.classList.remove('hidden-card');
+            loadingOverlay.classList.add('hidden');
+
+            loadNext();
+        });
+
+        // Reset Session
+        const resetBtn = document.getElementById('resetBtn');
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset? This will clear your current session and selections.')) {
+                // Stop audio
+                birdAudio.pause();
+                birdAudio.src = '';
+
+                // Clear selections
+                selectedSpecies.clear();
+                selectedFamilies.clear();
+                selectedTypes.clear();
+                selectedRegions.clear();
+                currentPool = [];
+                currentRecord = null;
+                isSessionActive = false;
+                isFlipped = false;
+
+                // Reset UI
+                renderSelectedSpecies();
+                renderSelectedFamilies();
+                updateAvailableTypes();
+                cardContainer.classList.add('hidden-card');
+                mainControls.classList.add('hidden-card');
+                startScreen.style.display = 'block';
+                statsText.innerText = '';
+
+                console.log('Session reset');
+            }
+        });
+
+        function updateStats() {
+            const meta = getMetadata();
+            const now = new Date();
+
+            // Build a comprehensive list of all cards in this session
+            const allSessionCards = new Map(); // id -> recording
+
+            // Add cards currently in pool
+            currentPool.forEach(r => {
+                allSessionCards.set(String(r.id), r);
+            });
+
+            // Add cards that were reviewed but are now mastered (removed from pool)
+            Object.keys(meta).forEach(id => {
+                const cardData = meta[id];
+                if (cardData && cardData.lastReview && cardData.mastered) {
+                    // Try to find this card's species from the ID or metadata
+                    // For now, we'll track it even if we don't have the full record
+                    if (!allSessionCards.has(id)) {
+                        allSessionCards.set(id, { id: id, en: 'Unknown' });
+                    }
+                }
+            });
+
+            // Calculate progress: sum of Easy streaks / (total cards × 3)
+            let totalEasyProgress = 0;
+            const totalCards = allSessionCards.size;
+            const requiredTotal = totalCards * 3;
+
+            // Group by species for detailed breakdown
+            const speciesProgress = new Map();
+
+            allSessionCards.forEach((rec, id) => {
+                const cardMeta = meta[id];
+                const easyStreak = cardMeta?.easyStreak || 0;
+                totalEasyProgress += Math.min(easyStreak, 3); // Cap at 3
+
+                const species = rec.en || 'Unknown';
+                if (!speciesProgress.has(species)) {
+                    speciesProgress.set(species, { total: 0, progress: 0, mastered: 0 });
+                }
+                const sp = speciesProgress.get(species);
+                sp.total++;
+                sp.progress += Math.min(easyStreak, 3);
+                if (cardMeta?.mastered) sp.mastered++;
+            });
+
+            const completionPercent = requiredTotal > 0 ? Math.round((totalEasyProgress / requiredTotal) * 100) : 0;
+            const masteredCount = Array.from(allSessionCards.keys()).filter(id => meta[id]?.mastered).length;
+
+            // Count due cards from current pool
+            const due = currentPool.filter(f => meta[f.id] && new Date(meta[f.id].due) <= now);
+            const newCards = currentPool.filter(f => !meta[f.id]);
+
+            // Build species breakdown
+            let speciesBreakdown = '';
+            const sortedSpecies = Array.from(speciesProgress.entries())
+                .sort((a, b) => a[0].localeCompare(b[0]));
+
+            sortedSpecies.forEach(([species, data]) => {
+                const speciesPercent = Math.round((data.progress / (data.total * 3)) * 100);
+                speciesBreakdown += `<div style="font-size: 0.85em; margin-top: 0.3rem;">${species}: ${data.progress}/${data.total * 3} (${speciesPercent}%)</div>`;
+            });
+
+            statsText.innerHTML = `
+                <div><strong>Overall Progress:</strong> ${totalEasyProgress}/${requiredTotal} Easy ratings (${completionPercent}%) | <strong>Mastered:</strong> ${masteredCount}/${totalCards}</div>
+                <div style="margin-top: 0.5rem;"><strong>Pool:</strong> ${currentPool.length} | <strong>Due:</strong> ${due.length} | <strong>New:</strong> ${newCards.length}</div>
+                ${speciesBreakdown}
+            `;
+        }
+
+        let lastSpecies = null;
+
+        function selectBalanced(pool) {
+            // Group by species
+            const groups = {};
+            pool.forEach(item => {
+                const sp = item.en || "Unknown";
+                if (!groups[sp]) groups[sp] = [];
+                groups[sp].push(item);
+            });
+
+            let speciesKeys = Object.keys(groups);
+
+            // Try to avoid the same species twice in a row if possible
+            if (speciesKeys.length > 1 && lastSpecies) {
+                const filtered = speciesKeys.filter(s => s !== lastSpecies);
+                if (filtered.length > 0) {
+                    speciesKeys = filtered;
+                }
+            }
+
+            const randomSpecies = speciesKeys[Math.floor(Math.random() * speciesKeys.length)];
+            lastSpecies = randomSpecies;
+
+            const speciesPool = groups[randomSpecies];
+            return speciesPool[Math.floor(Math.random() * speciesPool.length)];
+        }
+
+        function loadNext() {
+            if (currentPool.length === 0) {
+                // Session complete!
+                cardContainer.classList.add('hidden-card');
+                mainControls.classList.add('hidden-card');
+                startScreen.style.display = 'block';
+                startScreen.innerHTML = `
+                    <h2 style="color: var(--success); margin-bottom: 1rem;">🎉 Session Complete!</h2>
+                    <p style="margin-bottom: 2rem; font-size: 1.2rem; max-width: 500px; line-height: 1.6;">
+                        You've mastered all cards in this session! Great work!
+                    </p>
+                    <button class="primary" id="newSessionBtn" style="font-size: 1.2rem; padding: 1rem 3rem;">Start New Session</button>
+                `;
+
+                document.getElementById('newSessionBtn').addEventListener('click', () => {
+                    location.reload();
+                });
+
+                return;
+            }
+
+            const meta = getMetadata();
+            const now = new Date();
+
+            const duePool = currentPool.filter(f => meta[f.id] && new Date(meta[f.id].due) <= now);
+            const newPool = currentPool.filter(f => !meta[f.id]);
+
+            if (duePool.length > 0) {
+                currentRecord = selectBalanced(duePool);
+            } else if (newPool.length > 0) {
+                currentRecord = selectBalanced(newPool);
+            } else {
+                currentRecord = selectBalanced(currentPool);
+            }
+
+            // Immediately reset flip state and button visibility
+            isFlipped = false;
+            cardContainer.classList.remove('flipped');
+            revealBtn.style.display = 'block';
+            ratingButtons.classList.add('hidden-card');
+
+            // Clear current image while transitioning
+            speciesImageEl.src = "";
+            speciesImageEl.style.display = 'none';
+            imageAttributionEl.innerText = "";
+
+            // Fetch Image URL (Scientific Name works best for EOL, English as fallback)
+            const sciName = `${currentRecord.gen} ${currentRecord.sp}`.trim();
+            const engName = currentRecord.en;
+            const currentRequestedSpecies = sciName;
+
+            let imageDataReady = null;
+            let cardHasFlipped = false;
+
+            fetch(`http://localhost:5000/api/species_image?name=${encodeURIComponent(sciName)}&en=${encodeURIComponent(engName)}`)
+                .then(res => res.json())
+                .then(imgData => {
+                    // Verify this is still the current card
+                    const nowSci = `${currentRecord.gen} ${currentRecord.sp}`.trim();
+                    if (imgData.url && nowSci === currentRequestedSpecies) {
+                        imageDataReady = imgData;
+
+                        // If card has already flipped OR user has revealed the answer, display immediately
+                        if (cardHasFlipped || isFlipped) {
+                            speciesImageEl.src = imageDataReady.url;
+                            speciesImageEl.style.display = 'block';
+                            imageAttributionEl.innerText = `© ${imageDataReady.rightsHolder || "Unknown"} (${imageDataReady.license || "CC"})`;
+                        }
+                    }
+                })
+                .catch(err => console.warn("Failed to load species image", err));
+
+            // Delay ALL back-of-card updates until the card is facing away (halfway through the 0.6s transition)
+            setTimeout(() => {
+                cardHasFlipped = true;
+                speciesEl.innerText = currentRecord.en;
+                speciesFamilyEl.innerText = currentRecord.family || "";
+                vocalTypeEl.innerText = currentRecord.type;
+                locationEl.innerText = currentRecord.cnt;
+
+                // Apply image if it already loaded
+                if (imageDataReady) {
+                    speciesImageEl.src = imageDataReady.url;
+                    speciesImageEl.style.display = 'block';
+                    imageAttributionEl.innerText = `© ${imageDataReady.rightsHolder || "Unknown"} (${imageDataReady.license || "CC"})`;
+                }
+            }, 300);
+
+            let audioUrl = currentRecord.file;
+            birdAudio.src = `http://localhost:5000/proxy/audio?url=${encodeURIComponent(audioUrl)}`;
+
+            playAudio();
+            updateStats();
+        }
+
+        const pauseBtn = document.getElementById('pauseButton');
+
+        function playAudio() {
+            birdAudio.play().then(() => {
+                viz.style.display = 'flex';
+                playBtn.style.display = 'none';
+                pauseBtn.style.display = 'flex';
+                promptText.innerText = "Playing...";
+            }).catch(e => {
+                console.warn("Autoplay blocked", e);
+                viz.style.display = 'none';
+                playBtn.style.display = 'flex';
+                pauseBtn.style.display = 'none';
+                promptText.innerText = "Click play to start";
+            });
+        }
+
+        function pauseAudio() {
+            birdAudio.pause();
+            viz.style.display = 'none';
+            pauseBtn.style.display = 'none';
+            playBtn.style.display = 'flex';
+            promptText.innerText = "Paused";
+        }
+
+        function toggleAudio() {
+            if (birdAudio.paused) playAudio();
+            else pauseAudio();
+        }
+
+        function reveal() {
+            isFlipped = true;
+            cardContainer.classList.add('flipped');
+            revealBtn.style.display = 'none';
+            ratingButtons.classList.remove('hidden-card');
+        }
+
+        revealBtn.addEventListener('click', reveal);
+
+        pauseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            pauseAudio();
+        });
+
+        birdAudio.onended = () => {
+            viz.style.display = 'none';
+            playBtn.style.display = 'flex';
+            pauseBtn.style.display = 'none';
+            promptText.innerText = "Listen again?";
+        };
+        playBtn.addEventListener('click', (e) => { e.stopPropagation(); playAudio(); });
+        cardContainer.addEventListener('click', () => { toggleAudio(); });
+
+        document.querySelectorAll('.rating-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const grade = parseInt(btn.dataset.grade);
+                handleRating(grade);
+            });
+        });
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (!isSessionActive || document.activeElement.tagName === 'INPUT') return;
+
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent scrolling
+                if (!isFlipped) reveal();
+            }
+
+            if (isFlipped) {
+                if (e.key === '1') handleRating(1); // Incorrect
+                if (e.key === '2') handleRating(2); // Hard
+                if (e.key === '3') handleRating(4); // Easy (Mapped to 3rd key)
+            }
+        });
+
+        function handleRating(grade) {
+            const meta = getMetadata();
+            const id = String(currentRecord.id);
+            let card = meta[id] || {
+                easyStreak: 0,
+                lastReview: new Date().toISOString(),
+                totalReviews: 0
+            };
+
+            const now = new Date();
+            card.lastReview = now.toISOString();
+            card.totalReviews = (card.totalReviews || 0) + 1;
+
+            // Calculate next review time based on grade
+            const due = new Date();
+
+            if (grade === 1) {
+                // Incorrect: 30 seconds
+                due.setSeconds(due.getSeconds() + 30);
+                card.easyStreak = 0; // Reset streak
+            } else if (grade === 2) {
+                // Hard: 1 minute
+                due.setMinutes(due.getMinutes() + 1);
+                card.easyStreak = 0; // Reset streak
+            } else if (grade === 4) {
+                // Easy: 10 minutes
+                due.setMinutes(due.getMinutes() + 10);
+                card.easyStreak = (card.easyStreak || 0) + 1;
+
+                // If 3 Easy in a row, mark as mastered and remove from pool
+                if (card.easyStreak >= 3) {
+                    card.mastered = true;
+                    card.masteredAt = now.toISOString();
+
+                    // Remove from current pool
+                    const index = currentPool.findIndex(r => String(r.id) === id);
+                    if (index !== -1) {
+                        currentPool.splice(index, 1);
+                        console.log(`Card ${id} mastered! Removed from pool. ${currentPool.length} cards remaining.`);
+                    }
+                }
+            }
+
+            card.due = due.toISOString();
+            saveMetadata(id, card);
+
+            updateStats();
+            loadNext();
+        }
+
+        birdAudio.onended = () => {
+            viz.style.display = 'none';
+            playBtn.style.display = 'flex';
+            promptText.innerText = "Listen again?";
+        };
+        playBtn.addEventListener('click', (e) => { e.stopPropagation(); playAudio(); });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!speciesSearch.contains(e.target) && !speciesResults.contains(e.target)) {
+                speciesResults.classList.add('hidden');
+            }
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

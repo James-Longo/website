@@ -1,0 +1,3 @@
+[submodule "mimid"]
+	path = mimid
+	url = https://github.com/James-Longo/mimid

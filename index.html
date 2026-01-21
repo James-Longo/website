@@ -131,6 +131,40 @@
       outline: none;
       box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.35);
     }
+
+    /* mimid button */
+    .btn-mimid {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 23px;
+      background-color: #2e7d32;
+      color: #FFFFFF;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.02s ease;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .btn-mimid:hover {
+      background-color: #1b5e20;
+    }
+
+    .btn-mimid:active {
+      background-color: #0d3b10;
+      transform: translateY(1px);
+    }
+
+    .btn-mimid:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.35);
+    }
   </style>
 </head>
 
@@ -206,6 +240,9 @@
     <div class="buttons">
       <a href="https://gsaxctf.com/" target="_blank" rel="noopener noreferrer" class="btn-track">
         🏃‍♂️ track and field dashboard
+      </a>
+      <a href="/mimid/" class="btn-mimid">
+        🐦 mimid (bird sounds)
       </a>
       <!-- Cal element-click embed code begins -->
       <button data-cal-link="james-longo/birding" data-cal-namespace="birding" data-cal-config='{"layout":"month_view"}'
